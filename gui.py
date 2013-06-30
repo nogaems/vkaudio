@@ -20,7 +20,6 @@ def confirm_userdata(event):
         accountInfo.configure(text='authentication is successful', fg='blue')       
     else:  
         accountInfo.configure(text='Not authorized', foreground='red')      
-        print('Error')        
         glob.account =  None
     return account
 
@@ -29,8 +28,7 @@ def make_request(event):
     root.update_idletasks()
     folders = Folders('temp/', 'saved/')
     if glob.dirname != 'nothing':
-        folders.save_to = glob.dirname
-    print folders.save_to     
+        folders.save_to = glob.dirname   
     track = Track(glob.account, search.get().encode('utf8'), folders)    
     if track.link and len(track.link) != 0:
         queryInfo.configure(text='Request status:\n download '+track.link, fg='yellow')
