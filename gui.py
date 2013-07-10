@@ -4,32 +4,36 @@ from vkaudio import *
 from Tkinter import *
 import tkFileDialog
 
-class Global:
-    dirname = 'nothing'
+dirname = 'nothing'
+account = None
 
-glob = Global()
 
 def confirm_userdata(event):
+    global account
     accountInfo.configure(text='sending data', fg='yellow')
     root.update_idletasks()    
     try:                      
-        glob.account = Account(email.get(), password.get())
+        account = Account(email.get(), password.get())
     except:                
-        glob.account = None
-    if glob.account.isvalid:
-        accountInfo.configure(text='authentication is successful', fg='blue')       
-    else:  
+        account = None
+    try:
+        if account.isvalid:
+            accountInfo.configure(text='authentication is successful', fg='blue')
+        else:
+            accountInfo.configure(text='Not authorized', foreground='red')
+            account = None
+    except:
         accountInfo.configure(text='Not authorized', foreground='red')      
-        glob.account =  None
-    return account
+        account =  None
 
 def make_request(event):
+    global dirname, account
     queryInfo.configure(text='Request status:\n search for \''+search.get() +'\'', fg='yellow')
     root.update_idletasks()
     folders = Folders('temp/', 'saved/')
-    if glob.dirname != 'nothing':
-        folders.save_to = glob.dirname   
-    track = Track(glob.account, search.get().encode('utf8'), folders)    
+    if dirname != 'nothing':
+        folders.save_to = dirname
+    track = Track(account, search.get().encode('utf8'), folders)
     if track.link and len(track.link) != 0:
         queryInfo.configure(text='Request status:\n download '+track.link, fg='yellow')
         root.update_idletasks()
@@ -41,9 +45,10 @@ def make_request(event):
         root.update_idletasks() 
         
 def choose_directory(event):
+    global dirname
     invisible = Tk()
     invisible.withdraw()    
-    glob.dirname = tkFileDialog.askdirectory(parent=invisible, initialdir="~",title='Pick a directory')
+    dirname = tkFileDialog.askdirectory(parent=invisible, initialdir="~",title='Pick a directory')
     invisible.destroy()
     
 root = Tk()
@@ -78,7 +83,7 @@ space = Frame(root, height=10)
 space.pack()
 
 queryFrame = Frame(root)
-queryStringLabel = Label(queryFrame, text='Enter your search')
+queryStringLabel = Label(queryFrame, text='Enter your request')
 queryString = Entry(queryFrame, width=30, bd=2, textvariable=search, justify=CENTER)
 queryConfirm = Button(queryFrame, text='Request', width=20)
 queryInfo = Label(queryFrame, text='Request status:\n nothing requested', foreground='red')
@@ -97,8 +102,8 @@ folderFrame.pack()
 folderSelect.pack()
 folderSelectLabel.pack()
 
-dirname = folderSelect.bind('<1>', choose_directory)
-account = accountConfirm.bind('<1>', confirm_userdata)
-track = queryConfirm.bind('<1>', make_request)
+folderSelect.bind('<1>', choose_directory)
+accountConfirm.bind('<1>', confirm_userdata)
+queryConfirm.bind('<1>', make_request)
 
 root.mainloop()

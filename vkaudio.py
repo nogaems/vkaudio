@@ -232,6 +232,7 @@ class Track:
         pass
 
 if __name__ == '__main__':
+    print sys.argv
     if len(sys.argv) != 7:
         print "Use format: $ ./vkaudio.py -u \'user@mail.com:password\' -q \'query\' -o \'path/to/output/folder/\'"
         exit(1)
